@@ -1,6 +1,0 @@
-{
-  "watch": ["*.ts"],
-  "ext": "ts",
-  "exec": "ts-node --esm index.ts",
-  "delay": "1000"
-}

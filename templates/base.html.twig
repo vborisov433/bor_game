@@ -3,10 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}BOR Terminal{% endblock %}</title>
+    <title>{% block title %}Game BOR{% endblock %}</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link href="/dist/css/bootstrap@5.3min.css" rel="stylesheet">
     <link rel="stylesheet" href="/dist/css/bootstrap-icons@1.11.3.css">
+    <link rel="stylesheet" href="/dist/css/font-awesome7-all.min.css" />
+
+{#    <link#}
+{#            rel="stylesheet"#}
+{#            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"#}
+{#    />#}
+
     <link href="/css/main.css" rel="stylesheet">
     <style>
         body {
@@ -18,16 +25,17 @@
 <body>
 <nav class="navbar navbar-expand bg-primary navbar-dark mb-4 shadow">
     <div class="container">
-        <a class="navbar-brand" href="{{ path('app_news') }}">📈 BOR Terminal
+        <a class="navbar-brand" href="{{ path('app_news') }}">
+            <i class="fas fa-gamepad"></i> Game BOR
 
-            {% if isBornewsOnline is defined %}
-                {% if  not isBornewsOnline %}
-                    <span class="ms-2">
-                        <span class="d-inline-block rounded-circle {{ isBornewsOnline ? 'bg-success' : 'bg-danger' }}"
-                              style="width:10px; height:10px;"></span>
-                    </span>
-                {% endif %}
-            {% endif %}
+{#            {% if isBornewsOnline is defined %}#}
+{#                {% if  not isBornewsOnline %}#}
+{#                    <span class="ms-2">#}
+{#                        <span class="d-inline-block rounded-circle {{ isBornewsOnline ? 'bg-success' : 'bg-danger' }}"#}
+{#                              style="width:10px; height:10px;"></span>#}
+{#                    </span>#}
+{#                {% endif %}#}
+{#            {% endif %}#}
         </a>
 
         <ul class="navbar-nav ms-auto">
