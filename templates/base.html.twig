@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}BOR Terminal{% endblock %}</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link href="/dist/css/bootstrap@5.3min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/dist/css/bootstrap-icons@1.11.3.css">
+    <link href="/css/main.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+    </style>
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-expand bg-primary navbar-dark mb-4 shadow">
+    <div class="container">
+        <a class="navbar-brand" href="{{ path('app_news') }}">📈 BOR Terminal
+
+            {% if isBornewsOnline is defined %}
+                {% if  not isBornewsOnline %}
+                    <span class="ms-2">
+                        <span class="d-inline-block rounded-circle {{ isBornewsOnline ? 'bg-success' : 'bg-danger' }}"
+                              style="width:10px; height:10px;"></span>
+                    </span>
+                {% endif %}
+            {% endif %}
+        </a>
+
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('api_news_market_summary') }}" title="Market Summary">
+                    <i class="bi bi-bar-chart-fill"></i> Summary
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<main>
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <script src="/dist/js/jquery-3.7.1.min.js"></script>
+    <script src="/dist/js/timeago4.0.2.min.js"></script>
+    <script src="/dist/js/bootstrap@5.3.3.min.js"></script>
+
+    {% block body %}{% endblock %}
+</main>
+
+{% block javascripts %}{% endblock %}
+</body>
+</html>

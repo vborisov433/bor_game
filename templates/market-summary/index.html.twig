@@ -1,0 +1,241 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}BOR TERMINAL{% endblock %}
+
+{% block body %}
+    <style>
+        #template_textarea {
+            display: none;
+            height: 60vh;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+    <div class="container my-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="mb-0">Market Summary
+                <button class="btn btn-sm  btn-delete-summary" data-id="{{ selected_summary_id }}">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </h2>
+
+            <div class="text-end">
+                <span id="elapsed-time" class="text-muted me-3 small"></span>
+                <button id="refresh-summary" class="btn btn-outline-primary">
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true" id="summary-spinner"></span>
+                    Refresh
+                </button>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <label for="summary-selector" class="form-label mb-0">Saved Summaries:</label>
+                <select id="summary-selector" class="form-select w-auto d-inline-block">
+                    {% for summary in summaries %}
+                        <option class="timeago"
+                                datetime="{{ summary.createdAt|date('c') }}"
+                                value="{{ summary.id }}"
+                                {% if summary.id == selected_summary_id %}selected{% endif %}>
+                            {{ summary.createdAt|date('Y-m-d H:i') }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button id="toggle-template-form" type="button" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-pencil-square"></i> Prompt
+            </button>
+        </div>
+
+        <div id="template-form-container" style="display:none;">
+            <form method="post">
+                <textarea name="template" id="template_textarea" class="form-control" rows="8">{{ prompt_template.template }}</textarea>
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-primary mt-2 mb-4">
+                        <i class="bi bi-save" id="save-icon"></i> Save
+                    </button>
+                </div>
+            </form>
+        </div>
+
+{#        <div id="summary-container" class="d-none">#}
+{#            <div class="alert alert-info">Loading market summary...</div>#}
+{#        </div>#}
+
+        <div id="no-summary-label" class="alert alert-warning d-none"></div>
+
+        {% if market_summary_html %}
+
+            <div class="summary-container">
+
+                <div class="d-flex justify-content-between align-items-center px-1">
+                    {% if time_loaded is not null %}
+                        <p class="text-muted fw-bold mb-0">
+                            Loaded in
+                            {% set minutes = (time_loaded // 60) %}
+                            {% set seconds = (time_loaded % 60) %}
+                            {{ minutes > 0 ? minutes ~ ' min ' : '' }}{{ seconds }} sec
+                        </p>
+                    {% endif %}
+                    <button class="btn btn-light border" id="speakSummary" title="Read Aloud">
+                        <i class="bi bi-volume-up"></i> Read Aloud
+                    </button>
+                </div>
+
+
+                {{ market_summary_html|raw }}
+            </div>
+        {% else %}
+            <p>No summary available. Please refresh to generate.</p>
+        {% endif %}
+
+    </div>
+
+    <script>
+        let timerInterval;
+        let startTime;
+
+        function startTimer() {
+            startTime = new Date();
+            $('#elapsed-time').text('Loading... 0s');
+
+            timerInterval = setInterval(function () {
+                const now = new Date();
+                const seconds = Math.floor((now - startTime) / 1000);
+                $('#elapsed-time').text(`Loading... ${seconds}s`);
+            }, 500);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            const endTime = new Date();
+            const seconds = ((endTime - startTime) / 1000).toFixed(1);
+            $('#elapsed-time').text(`Loaded in ${seconds}s`);
+        }
+
+        function loadMarketSummary() {
+            $('#summary-spinner').removeClass('d-none');
+            $('#refresh-summary').attr('disabled', true);
+            $('#market-summary-container').html('<div class="alert alert-info">Fetching data...</div>');
+            $('#no-summary-label').hide(); // hide previous label
+
+            startTimer();
+
+            let timeoutWarning = setTimeout(function () {
+                $('#no-summary-label')
+                    .text('This is taking longer than expected. Please try again later or check the server.')
+                    .removeClass('d-none')
+                    .addClass('alert-warning');
+                $('#no-summary-label').show();
+            }, 190000); // 60 seconds
+
+            $.ajax({
+                url: '{{ path("api_market_summary_json") }}',
+                method: 'GET',
+                success: function (response) {
+                    console.log('response.html_result', response.html_result);
+                    clearTimeout(timeoutWarning); // clear timeout on success
+
+                    if (response.html_result) {
+                        window.location.href = '{{ path("api_news_market_summary") }}';
+                    } else {
+                        $('#summary-container')
+                            .removeClass('d-none')
+                            .html('');
+                        $('#no-summary-label')
+                            .text('No summary was returned. Please try again later.')
+                            .removeClass('d-none')
+                            .addClass('alert-warning');
+                    }
+                },
+                error: function (xhr) {
+                    clearTimeout(timeoutWarning); // clear timeout on error
+                    $('#market-summary-container').html(
+                        '<div class="alert alert-danger">Error loading market summary: ' +
+                        (xhr.responseJSON?.error || 'Unknown error') +
+                        '</div>'
+                    );
+                },
+                complete: function () {
+                    stopTimer();
+                    $('#summary-spinner').addClass('d-none');
+                    $('#refresh-summary').attr('disabled', false);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $('#toggle-template-form').on('click', function () {
+                $('#template-form-container').slideToggle();
+            });
+
+                timeago.render(document.querySelectorAll('.timeago'));
+
+            // loadMarketSummary();
+
+            $('#refresh-summary').click(function () {
+                loadMarketSummary();
+            });
+        });
+
+        $('#summary-selector').on('change', function () {
+            const selectedId = $(this).val();
+            if (selectedId) {
+                window.location.href = window.location.pathname + '?id=' + encodeURIComponent(selectedId);
+            }
+        });
+
+        let isSpeaking = false;
+        let utterance;
+
+        $('#speakSummary').on('click', function () {
+            const summaryText = $('.container-fluid.p-1').text().trim();
+
+            if (!isSpeaking) {
+                utterance = new SpeechSynthesisUtterance(summaryText);
+                utterance.lang = 'en-US';
+                utterance.rate = 1;
+
+                speechSynthesis.speak(utterance);
+                isSpeaking = true;
+
+                $(this).html('<i class="bi bi-stop-circle"></i>  Read Aloud'); // Toggle icon to stop
+
+                utterance.onend = function () {
+                    isSpeaking = false;
+                    $('#speakSummary').html('<i class="bi bi-volume-up"></i>  Read Aloud');
+                };
+            } else {
+                speechSynthesis.cancel();
+                isSpeaking = false;
+                $(this).html('<i class="bi bi-volume-up"></i>  Read Aloud');
+            }
+        });
+
+        $('.btn-delete-summary').click(function () {
+            const id = $(this).data('id');
+            if (!confirm('Are you sure you want to delete this market summary?')) {
+                return;
+            }
+
+            $.post('/market-summary/delete/' + id, function (response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + (response.message || 'Could not delete summary.'));
+                }
+            }).fail(function () {
+                alert('Failed to delete summary.');
+            });
+        });
+
+        $(document).on('keydown', function (e) {
+            if (e.key.toLowerCase() === 'r' && e.target.tagName.toLowerCase() !== 'textarea') {
+                e.preventDefault();
+                location.href = window.location.pathname + window.location.search;
+            }
+        });
+
+    </script>
+
+{% endblock %}
