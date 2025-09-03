@@ -1,44 +1,30 @@
 .navbar{
     background-color: black !important;
 }
-.dot {
-    width: 9px;
-    height: 9px;
-    background-color: #fcb700;
-    border-radius: 50%;
-    display: inline-block;
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden; /* Remove scrollbars */
+    background: #000;
 }
-th{
-    font-size: 12px;
-}
-.icon1{
-    font-size: 25px;
-    margin-left: 5px;
+main {
+    width: 100%;
+    height: 100%;
     display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: black;
 }
-.timeago{
-    letter-spacing: 1.2px;
-    color: #747474;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
+main img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Fill the screen, crop if necessary */
 }
-.headline{
-    font-size: 15px;
-}
-.summary{
-    font-size: 15px;
-}
-.orig-article-link{
-    font-size: 13px;
-}
-.magnitude-span{
-    width: 30px;
-}
-.sentiment{
-    float: right;
-}
-.market-label{
-    font-size: 12px;
-    font-weight: bold;
+@media (min-width: 768px) {
+    main img {
+        max-width: 560px;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 }

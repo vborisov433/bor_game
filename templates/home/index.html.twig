@@ -2,7 +2,13 @@
 
 {% block title %}BOR TERMINAL{% endblock %}
 {% block body %}
-    <div class="container my-5">
-        Home
+    <div class="">
+        {% if lastPic %}
+            <img src="{{ asset(lastPic.path) }}"
+                 class=""
+                 alt="Last uploaded picture">
+        {% else %}
+            <div class="alert alert-info">No pictures uploaded yet.</div>
+        {% endif %}
     </div>
 {% endblock %}

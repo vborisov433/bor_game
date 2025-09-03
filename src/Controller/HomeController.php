@@ -32,8 +32,12 @@ final class HomeController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function home(Request $request, PaginatorInterface $paginator, EntityManagerInterface $em): Response
     {
+        $lastPic = $em->getRepository(\App\Entity\UploadedFile::class)
+            ->findOneBy([], ['createdAt' => 'DESC']);
 
-        return $this->render('home/index.html.twig', []);
+        return $this->render('home/index.html.twig', [
+            'lastPic' => $lastPic,
+        ]);
     }
 
     #[Route('/upload', name: 'app_upload', methods: ['GET', 'POST'])]
