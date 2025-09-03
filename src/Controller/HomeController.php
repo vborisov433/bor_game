@@ -78,8 +78,8 @@ final class HomeController extends AbstractController
                     return $this->redirectToRoute('app_upload');
                 }
 
-                $this->addFlash('success', 'Picture uploaded to /uploads/' . $today . '/' . $newFilename);
-                return $this->redirectToRoute('app_upload');
+//                $this->addFlash('success', 'Picture uploaded to /uploads/' . $today . '/' . $newFilename);
+                return $this->redirectToRoute('app_home');
             }
 
             $this->addFlash('warning', 'No file selected.');
