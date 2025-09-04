@@ -2,18 +2,79 @@
 
 {% block title %}Game BOR{% endblock %}
 {% block time %}
-    <time class="timeago" datetime="{{ lastPic.createdAt|date('c') }}"></time>
+    <time id="picture-time"
+          class="timeago"
+          datetime="{{ lastPicLongTerm ? lastPicLongTerm.createdAt|date('c') : '' }}">
+        {{ lastPicLongTerm ? lastPicLongTerm.createdAt|date('c') : '' }}
+    </time>
 {% endblock %}
 
 {% block body %}
-    <div class="">
+        <div id="picture-container" class="text-center">
+            {% if lastPicLongTerm %}
+                <img id="main-picture"
+                     src="{{ asset(lastPicLongTerm.path) }}"
+                     class=""
+                     alt="Last uploaded picture">
+            {% else %}
+                <div class="alert alert-info">No pictures uploaded yet.</div>
+            {% endif %}
+        </div>
 
-        {% if lastPic %}
-            <img src="{{ asset(lastPic.path) }}"
-                 class=""
-                 alt="Last uploaded picture">
-        {% else %}
-            <div class="alert alert-info">No pictures uploaded yet.</div>
-        {% endif %}
-    </div>
+    <script>
+        $(function () {
+            const $img = $("#main-picture");
+            const $time = $("#picture-time");
+
+            const lastPicLongTerm = {
+                path: "{{ lastPicLongTerm ? asset(lastPicLongTerm.path) : '' }}",
+                time: "{{ lastPicLongTerm ? lastPicLongTerm.createdAt|date('c') : '' }}"
+            };
+            const lastPicRight = {
+                path: "{{ lastPicRight ? asset(lastPicRight.path) : '' }}",
+                time: "{{ lastPicRight ? lastPicRight.createdAt|date('c') : '' }}"
+            };
+
+            function showImage(pic) {
+                if (pic.path && $img.attr("src") !== pic.path) {
+                    $img.fadeOut(200, function () {
+                        $img.attr("src", pic.path).fadeIn(200);
+                    });
+
+                    // update datetime attribute
+                    $time.attr("datetime", pic.time);
+
+                    // re-render timeago text
+                    timeago.cancel(); // clear old timers
+                    timeago.render([$time[0]]);
+                }
+            }
+
+            let touchstartX = 0;
+            let touchendX = 0;
+
+            $img.on("touchstart", function (e) {
+                touchstartX = e.originalEvent.changedTouches[0].screenX;
+            });
+
+            $img.on("touchend", function (e) {
+                touchendX = e.originalEvent.changedTouches[0].screenX;
+                if (touchendX < touchstartX - 50) {
+                    showImage(lastPicLongTerm);
+                }
+                if (touchendX > touchstartX + 50) {
+                    showImage(lastPicRight);
+                }
+            });
+
+            $(document).on("keydown", function (e) {
+                if (e.key === "ArrowLeft") {
+                    showImage(lastPicLongTerm);
+                } else if (e.key === "ArrowRight") {
+                    showImage(lastPicRight);
+                }
+            });
+        });
+
+    </script>
 {% endblock %}

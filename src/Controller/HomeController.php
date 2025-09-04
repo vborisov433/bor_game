@@ -32,11 +32,15 @@ final class HomeController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function home(Request $request, PaginatorInterface $paginator, EntityManagerInterface $em): Response
     {
-        $lastPic = $em->getRepository(\App\Entity\UploadedFile::class)
-            ->findOneBy([], ['createdAt' => 'DESC']);
+        $lastPicLongTerm = $em->getRepository(\App\Entity\UploadedFile::class)
+            ->findOneBy(['groupType'=>1], ['createdAt' => 'DESC']);
+
+        $lastPicRight = $em->getRepository(\App\Entity\UploadedFile::class)
+            ->findOneBy(['groupType'=>2], ['createdAt' => 'DESC']);
 
         return $this->render('home/index.html.twig', [
-            'lastPic' => $lastPic,
+            'lastPicLongTerm' => $lastPicLongTerm,
+            'lastPicRight' => $lastPicRight,
         ]);
     }
 
@@ -45,6 +49,7 @@ final class HomeController extends AbstractController
     {
         if ($request->isMethod('POST')) {
             $uploadedFile = $request->files->get('picture');
+            $groupType = $request->request->get('groupType', 2);
 
             if ($uploadedFile) {
                 $today = (new \DateTime())->format('Y-m-d'); // e.g. 2025-09-03
@@ -69,7 +74,7 @@ final class HomeController extends AbstractController
 
                     $uploaded = new UploadedFile();
                     $uploaded->setPath('uploads/' . $today . '/' . $newFilename);
-                    $uploaded->setGroupType(1);
+                    $uploaded->setGroupType($groupType);
 
                     $em->persist($uploaded);
                     $em->flush();
