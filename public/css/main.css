@@ -35,8 +35,27 @@ time {
 }
 #menu{
     position: absolute;
-    top: 60px;
+    top: 54px;
     width: 100%;
     padding: 0 3px;
     background-color: #000000b8;
+}
+#menuToggle{
+    top: 78px;
+    position: absolute;
+    right: 0;
+    transform: translateY(-50%);
+    z-index: 1050;
+}
+.mcontent{
+    padding: 5px;
+}
+.countdown{
+    position: absolute;
+    background-color: #000000;
+    top: 45px;
+    padding: 2px 8px;
+    font-size: 14px;
+    border-radius: 3px;
+    box-shadow: 0px 0px 8px rgb(255 0 0);
 }

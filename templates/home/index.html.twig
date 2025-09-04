@@ -10,47 +10,118 @@
 {% endblock %}
 
 {% block body %}
-<div id="menu">
-    <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="timeframeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            {{ selectedTimeframe }} hour{{ selectedTimeframe > 1 ? 's' : '' }}
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="timeframeDropdown">
-            {% for h in [1,2,3,4,6,8,10] %}
-                <li>
-                    <a class="dropdown-item timeframe-option {% if h == selectedTimeframe %}active{% endif %}" href="#" data-hours="{{ h }}">
-                        {{ h }} hour{{ h > 1 ? 's' : '' }}
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-</div>
-        <div id="picture-container" class="text-center">
-            {% if lastPicLongTerm %}
-                <img id="main-picture"
-                     src="{{ asset(lastPicLongTerm.path) }}"
-                     class=""
-                     alt="Last uploaded picture">
-            {% else %}
-                <div class="alert alert-info">No pictures uploaded yet.</div>
-            {% endif %}
+
+    <div class="countdown">
+        <div class="d-flex align-items-center">
+            <strong>Next Hour:</strong> <span id="countdown" class="ms-2 badge bg-info text-white">--:--</span>
         </div>
+    </div>
+
+    <div id="menuToggle" class="position-fixed">
+        <button class="btn btn-primary" id="toggleMenuBtn" type="button">
+            <i class="bi bi-caret-left-fill"></i>
+        </button>
+    </div>
+
+    <div id="menu" style="display: none">
+        <div class="mcontent">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="timeframeDropdown"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                    {{ selectedTimeframe }} hour{{ selectedTimeframe > 1 ? 's' : '' }}
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="timeframeDropdown">
+                    {% for h in [1,2,3,4,6,8,10] %}
+                        <li>
+                            <a class="dropdown-item timeframe-option {% if h == selectedTimeframe %}active{% endif %}"
+                               href="#" data-hours="{{ h }}">
+                                {{ h }} hour{{ h > 1 ? 's' : '' }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div id="picture-container" class="text-center">
+        {% if lastPicLongTerm %}
+            <img id="main-picture"
+                 src="{{ asset(lastPicLongTerm.path) }}"
+                 class=""
+                 alt="Last uploaded picture">
+        {% else %}
+            <div class="alert alert-info">No pictures uploaded yet.</div>
+        {% endif %}
+    </div>
 
     <script>
-        $('.timeframe-option').on('click', function(e) {
-            e.preventDefault();
-            const hours = $(this).data('hours');
+        $(document).ready(function () {
+            const menu = $('#menu');
+            const toggleBtn = $('#toggleMenuBtn');
+            let selectedHours = parseInt($('.timeframe-option.active').data('hours'));
+            const countdownEl = $('#countdown');
 
-            $('#timeframeDropdown').text(`${hours} hour${hours > 1 ? 's' : ''}`);
+            $('.timeframe-option').on('click', function (e) {
+                e.preventDefault();
+                const hours = $(this).data('hours');
 
-            $.post("{{ path('app_set_timeframe') }}", { timeframe: hours }, function(response) {
-                if(response.success){
-                    console.log('Timeframe saved:', response.timeframe);
-                    // optionally refresh pictures or data
-                }
+                $('#timeframeDropdown').text(`${hours} hour${hours > 1 ? 's' : ''}`);
+
+                selectedHours = parseInt($(this).data('hours'));
+
+                setTimeout(()=>{
+                    toggleBtn.click()
+                }, 400);
+
+                $.post("{{ path('app_set_timeframe') }}", {timeframe: hours}, function (response) {
+                    if (response.success) {
+                        console.log('Timeframe saved:', response.timeframe);
+                        // optionally refresh pictures or data
+                    }
+                });
             });
+
+            toggleBtn.on('click', function () {
+                menu.toggle();
+                // Change caret direction
+                const icon = $(this).find('i');
+                icon.toggleClass('bi-caret-left-fill bi-caret-right-fill');
+            });
+
+            function updateCountdown() {
+                const now = new Date();
+                let nextInterval = new Date();
+                const h = selectedHours;
+
+                const currentHour = now.getHours();
+                const remainder = currentHour % h;
+                let nextHour = currentHour - remainder + h;
+                if (nextHour >= 24) nextHour -= 24;
+
+                nextInterval.setHours(nextHour, 0, 0, 0);
+                if (nextInterval <= now) {
+                    nextInterval.setHours(nextInterval.getHours() + h);
+                }
+
+                let diff = nextInterval - now;
+                const hours = Math.floor(diff / 1000 / 60 / 60);
+                diff -= hours * 60 * 60 * 1000;
+                const minutes = Math.floor(diff / 1000 / 60);
+                diff -= minutes * 60 * 1000;
+                const seconds = Math.floor(diff / 1000);
+
+                countdownEl.text(
+                    (hours < 10 ? '0' : '') + hours + ':' +
+                    (minutes < 10 ? '0' : '') + minutes + ':' +
+                    (seconds < 10 ? '0' : '') + seconds
+                );
+            }
+
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
         });
+
+
 
         $(function () {
             const $img = $("#main-picture");
