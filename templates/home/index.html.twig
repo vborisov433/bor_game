@@ -12,9 +12,15 @@
 {% block body %}
 
     <div class="countdown">
+{#        <div class="d-flex align-items-center">#}
+{#            <strong>Next Hour:</strong> <span id="countdown" class="ms-2 badge bg-info text-white">--:--</span>#}
+{#        </div>#}
+
         <div class="d-flex align-items-center">
-            <strong>Next Hour:</strong> <span id="countdown" class="ms-2 badge bg-info text-white">--:--</span>
+            <span id="countdown" class="badge bg-info text-white">--:--:--</span><br>
+            <span class="nextTime">Next: <small id="nextTimeLabel" class="text-muted">--:--</small></span>
         </div>
+
     </div>
 
     <div id="menuToggle" class="position-fixed">
@@ -60,6 +66,8 @@
             const toggleBtn = $('#toggleMenuBtn');
             let selectedHours = parseInt($('.timeframe-option.active').data('hours'));
             const countdownEl = $('#countdown');
+            const nextTimeLabel = $('#nextTimeLabel');
+
 
             $('.timeframe-option').on('click', function (e) {
                 e.preventDefault();
@@ -89,39 +97,47 @@
             });
 
             function updateCountdown() {
+                const h = Number(selectedHours) || 2; // ensure number
                 const now = new Date();
-                let nextInterval = new Date();
-                const h = selectedHours;
 
-                const currentHour = now.getHours();
-                const remainder = currentHour % h;
-                let nextHour = currentHour - remainder + h;
-                if (nextHour >= 24) nextHour -= 24;
+                // minutes since midnight
+                const dayStart = new Date(now);
+                dayStart.setHours(0, 0, 0, 0);
+                const minutesSinceMidnight = Math.floor((now - dayStart) / 60000);
+                const interval = h * 60;
 
-                nextInterval.setHours(nextHour, 0, 0, 0);
-                if (nextInterval <= now) {
-                    nextInterval.setHours(nextInterval.getHours() + h);
+                // next interval start (in minutes from midnight)
+                let nextMinutes = Math.floor(minutesSinceMidnight / interval) * interval + interval;
+
+                // build the Date for the next boundary
+                const next = new Date(dayStart);
+                if (nextMinutes >= 1440) {
+                    next.setDate(next.getDate() + Math.floor(nextMinutes / 1440));
+                    nextMinutes = nextMinutes % 1440;
                 }
+                next.setHours(Math.floor(nextMinutes / 60), nextMinutes % 60, 0, 0);
 
-                let diff = nextInterval - now;
-                const hours = Math.floor(diff / 1000 / 60 / 60);
-                diff -= hours * 60 * 60 * 1000;
-                const minutes = Math.floor(diff / 1000 / 60);
-                diff -= minutes * 60 * 1000;
-                const seconds = Math.floor(diff / 1000);
+                // diff -> HH:MM:SS
+                const diffMs = next - now;
+                const totalSeconds = Math.max(0, Math.ceil(diffMs / 1000));
+                const hh = Math.floor(totalSeconds / 3600);
+                const mm = Math.floor((totalSeconds % 3600) / 60);
+                const ss = totalSeconds % 60;
 
                 countdownEl.text(
-                    (hours < 10 ? '0' : '') + hours + ':' +
-                    (minutes < 10 ? '0' : '') + minutes + ':' +
-                    (seconds < 10 ? '0' : '') + seconds
+                    `${String(hh).padStart(1, '0')}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`
+                );
+
+                // optional: label exact next time HH:MM
+                nextTimeLabel.text(
+                    `${String(next.getHours()).padStart(2, '0')}:${String(next.getMinutes()).padStart(2, '0')}`
                 );
             }
 
+
             updateCountdown();
-            setInterval(updateCountdown, 1000);
+            setInterval(updateCountdown, 2000);
         });
-
-
 
         $(function () {
             const $img = $("#main-picture");
