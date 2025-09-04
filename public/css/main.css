@@ -29,3 +29,7 @@ main img {
         object-fit: cover;
     }
 }
+time {
+    color: white;
+    font-size: 14px;
+}

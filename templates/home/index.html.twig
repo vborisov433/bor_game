@@ -1,8 +1,13 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Game BOR{% endblock %}
+{% block time %}
+    <time class="timeago" datetime="{{ lastPic.createdAt|date('c') }}"></time>
+{% endblock %}
+
 {% block body %}
     <div class="">
+
         {% if lastPic %}
             <img src="{{ asset(lastPic.path) }}"
                  class=""
