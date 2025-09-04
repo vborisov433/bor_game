@@ -38,9 +38,15 @@ final class HomeController extends AbstractController
         $lastPicRight = $em->getRepository(\App\Entity\UploadedFile::class)
             ->findOneBy(['groupType'=>2], ['createdAt' => 'DESC']);
 
+        $utilService = $em->getRepository(\App\Entity\UtilService::class)
+            ->findOneBy(['name' => 'menu']);
+
+        $timeframe = $utilService ? $utilService->getData()['last_selected_timeframe'] ?? 2 : 2;
+
         return $this->render('home/index.html.twig', [
             'lastPicLongTerm' => $lastPicLongTerm,
             'lastPicRight' => $lastPicRight,
+            'selectedTimeframe' => $timeframe,
         ]);
     }
 
