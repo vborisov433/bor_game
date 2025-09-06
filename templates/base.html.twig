@@ -43,12 +43,45 @@
         </div>
 
         <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="/upload" title="Upload Picture">
-                    <i class="bi bi-upload"></i> Upload
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarMenuDropdown" role="button"
+                   data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-list"></i> Menu
                 </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarMenuDropdown">
+                    <li>
+                        <a class="dropdown-item" href="/poll">
+                            <i class="bi bi-clipboard-check"></i> Poll
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/upload">
+                            <i class="bi bi-upload"></i> Upload
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="{{ path('app_home') }}">
+                            <i class="bi bi-house"></i> Home
+                        </a>
+                    </li>
+                </ul>
             </li>
         </ul>
+
+{#        <ul class="navbar-nav ms-auto">#}
+{#            <li class="nav-item">#}
+{#                <a class="nav-link" href="/poll" title="Take Poll">#}
+{#                    <i class="bi bi-clipboard-check"></i> Poll#}
+{#                </a>#}
+{#            </li>#}
+{#            <li class="nav-item">#}
+{#                <a class="nav-link" href="/upload" title="Upload Picture">#}
+{#                    <i class="bi bi-upload"></i> Upload#}
+{#                </a>#}
+{#            </li>#}
+{#        </ul>#}
+
     </div>
 </nav>
 

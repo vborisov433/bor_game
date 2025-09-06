@@ -65,3 +65,14 @@ time {
 .nextTime small {
     color: white !important;
 }
+.dropdown-menu{
+    background-color: #ffe700;
+}
+.dropdown-item{
+    color: black !important;
+    font-weight: bold;
+}
+.dropdown-item:hover {
+     color: var(--bs-dropdown-link-hover-color);
+     background-color: #fff7ae;
+ }
