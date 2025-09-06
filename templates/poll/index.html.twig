@@ -1,0 +1,119 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello PollController!{% endblock %}
+
+{% block body %}
+    <style>
+        #poll-container {
+            position: absolute;
+            top: 75px;
+        }
+    </style>
+
+    <div class="container" id="poll-container">
+
+        <div class="d-flex justify-content-end mb-3">
+            <button id="next-poll-btn" class="btn btn-primary d-none">Next Poll</button>
+        </div>
+
+        <h4 id="poll-question" class="mb-4"></h4>
+        <div id="poll-explanation" class="mt-3 alert d-none"></div>
+        <div id="poll-answers" class="list-group"></div>
+
+
+        <div id="noPolls" class="alert alert-secondary d-none">No unanswered poll
+            <div class="d-flex justify-content-end mb-3">
+                <button id="fetch-poll-btn" class="btn btn-success">
+                    Fetch Poll
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function loadPoll() {
+            $.get('/api/poll', function(res) {
+                if (!res.data) {
+                    $('#noPolls').removeClass('d-none');
+                    return;
+                }
+
+                let question = res.data.question;
+                let answers = res.data.answers;
+                let rightAnswer = res.data.right_answer;
+                let explanation = res.data.explanation;
+
+                $('#poll-question').text(question);
+                $('#poll-answers').empty();
+                $('#poll-explanation').addClass('d-none').text('');
+                $('#next-poll-btn').addClass('d-none'); // hide until answered
+
+                $.each(answers, function(key, val) {
+                    let btn = $('<button class="list-group-item list-group-item-action"></button>')
+                        .text(val)
+                        .attr('data-answer', key)
+                        .click(function() {
+                            let chosen = $(this).data('answer');
+
+                            if (parseInt(chosen) === rightAnswer) {
+                                $(this).addClass('list-group-item-success');
+                            } else {
+                                $(this).addClass('list-group-item-danger');
+                                $('#poll-answers button').eq(rightAnswer).addClass('list-group-item-success');
+                            }
+
+                            $('#poll-explanation').removeClass('d-none').text(explanation);
+
+                            // Mark as answered in backend
+                            $.post('/api/poll/' + res.id + '/answer');
+
+                            // Show "Next Poll" button
+                            $('#next-poll-btn').removeClass('d-none');
+                        });
+
+                    $('#poll-answers').append(btn);
+                });
+            });
+        }
+
+        $(document).ready(function() {
+            loadPoll();
+
+            // Reload next poll when button clicked
+            $('#next-poll-btn').click(function() {
+                loadPoll();
+            });
+        });
+
+        $(document).ready(function () {
+            $('#fetch-poll-btn').on('click', function () {
+                const btn = $(this);
+                btn.prop('disabled', true).text('Loading...');
+
+                $.ajax({
+                    url: '/fetch-poll',
+                    method: 'GET',
+                    success: function (response) {
+                        if (response.success) {
+                            // Reload poll page
+                            window.location.href = '/poll';
+                        } else {
+                            // No unanswered poll
+                            $('#poll-container').html('<div class="alert alert-secondary">No unanswered poll</div>');
+                        }
+                    },
+                    error: function () {
+                        $('#poll-container').html('<div class="alert alert-danger">Error fetching poll. Try again later.</div>');
+                    },
+                    complete: function () {
+                        btn.prop('disabled', false).text('Fetch Poll');
+                    }
+                });
+            });
+        });
+
+    </script>
+
+{% endblock %}

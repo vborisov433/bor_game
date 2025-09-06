@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\MarketSummary;
+use App\Entity\PollQuestion;
 use App\Entity\PromptTemplate;
 use App\Entity\Service;
 use App\Entity\UploadedFile;
@@ -33,10 +34,10 @@ final class HomeController extends AbstractController
     public function home(Request $request, PaginatorInterface $paginator, EntityManagerInterface $em): Response
     {
         $lastPicLongTerm = $em->getRepository(\App\Entity\UploadedFile::class)
-            ->findOneBy(['groupType'=>1], ['createdAt' => 'DESC']);
+            ->findOneBy(['groupType' => 1], ['createdAt' => 'DESC']);
 
         $lastPicRight = $em->getRepository(\App\Entity\UploadedFile::class)
-            ->findOneBy(['groupType'=>2], ['createdAt' => 'DESC']);
+            ->findOneBy(['groupType' => 2], ['createdAt' => 'DESC']);
 
         $utilService = $em->getRepository(\App\Entity\UtilService::class)
             ->findOneBy(['name' => 'menu']);
@@ -98,5 +99,6 @@ final class HomeController extends AbstractController
 
         return $this->render('home/upload.html.twig');
     }
+
 
 }

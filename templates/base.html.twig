@@ -73,7 +73,10 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        timeago.render(document.querySelectorAll('.timeago'));
+        if (document.querySelectorAll('.timeago').length){
+            timeago.render(document.querySelectorAll('.timeago'));
+
+        }
     });
 </script>
 </body>
