@@ -41,19 +41,32 @@
                 }
 
                 let question = res.data.question;
-                let answers = res.data.answers;
-                let rightAnswer = res.data.right_answer;
+                let answers = res.data.answers; // array like ['A', 'B', 'C']
+                let rightAnswer = res.data.right_answer; // original index of correct answer
                 let explanation = res.data.explanation;
+
+                // Create array of objects with original index
+                let answerItems = answers.map((text, index) => ({ text, index }));
+
+                // Shuffle array
+                for (let i = answerItems.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [answerItems[i], answerItems[j]] = [answerItems[j], answerItems[i]];
+                }
+
+                // Update rightAnswer after shuffle
+                rightAnswer = answerItems.findIndex(item => item.index === rightAnswer);
 
                 $('#poll-question').text(question);
                 $('#poll-answers').empty();
                 $('#poll-explanation').addClass('d-none').text('');
                 $('#next-poll-btn').addClass('d-none'); // hide until answered
 
-                $.each(answers, function(key, val) {
+                // Create buttons
+                answerItems.forEach((item, idx) => {
                     let btn = $('<button class="list-group-item list-group-item-action"></button>')
-                        .text(val)
-                        .attr('data-answer', key)
+                        .text(item.text)
+                        .attr('data-answer', idx)
                         .click(function() {
                             let chosen = $(this).data('answer');
 
@@ -77,6 +90,7 @@
                 });
             });
         }
+
 
         $(document).ready(function() {
             loadPoll();
