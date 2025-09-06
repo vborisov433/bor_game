@@ -14,7 +14,6 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class PollController extends AbstractController
 {
-
     #[Route('/fetch-poll', name: 'poll_fetch', methods: ['GET'])]
     public function fetch(Request $request, EntityManagerInterface $em, HttpClientInterface $http, ParameterBagInterface $params): JsonResponse
     {

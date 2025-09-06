@@ -12,7 +12,7 @@
 
     <div class="container" id="poll-container">
 
-        <div class="d-flex justify-content-end mb-3">
+        <div class="d-flex justify-content-start mb-3">
             <button id="next-poll-btn" class="btn btn-primary d-none">Next Poll</button>
         </div>
 
@@ -84,6 +84,22 @@
 
                             // Show "Next Poll" button
                             $('#next-poll-btn').removeClass('d-none');
+                            // #next-poll-btn Disable button for 5 seconds to prevent rapid clicks show counter in the button text
+                            let countdown = 5;
+                            const btn = $('#next-poll-btn');
+                            btn.prop('disabled', true).text(`Next Poll (${countdown})`);
+                            const interval = setInterval(() => {
+                                countdown--;
+                                if (countdown > 0) {
+                                    btn.text(`Next Poll (${countdown})`);
+                                } else {
+                                    clearInterval(interval);
+                                    btn.prop('disabled', false).text('Next Poll');
+                                }
+                            }, 1000);
+
+
+
                         });
 
                     $('#poll-answers').append(btn);
