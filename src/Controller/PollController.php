@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\PollQuestion;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,9 +16,9 @@ final class PollController extends AbstractController
 {
 
     #[Route('/fetch-poll', name: 'poll_fetch', methods: ['GET'])]
-    public function fetch(Request $request, EntityManagerInterface $em, HttpClientInterface $http): JsonResponse
+    public function fetch(Request $request, EntityManagerInterface $em, HttpClientInterface $http, ParameterBagInterface $params): JsonResponse
     {
-        $HOST = 'localhost'; // 15.0.1.50
+        $HOST = $params->get('GPT_HOST');; // 15.0.1.50
 
         $question = $request->request->get('question', '
         I am trader for a long time. Issues are I forget to take profit or I move my stop and a loss
