@@ -18,13 +18,14 @@ final class PollController extends AbstractController
     #[Route('/fetch-poll', name: 'poll_fetch', methods: ['GET'])]
     public function fetch(Request $request, EntityManagerInterface $em, HttpClientInterface $http, ParameterBagInterface $params): JsonResponse
     {
-        $HOST = $params->get('GPT_HOST');; // 15.0.1.50
+        $NUMBER_QUESTIONS = 50;
 
+        $HOST = $params->get('GPT_HOST');; // 15.0.1.50
         $question = $request->request->get('question', '
         I am trader for a long time. Issues are I forget to take profit or I move my stop and a loss
 become big loss, I enter the market then I realise I am wrong but still let the trade go, then
 close for a big loss.
--create a POLL 7 QUESTIONS ABOUT getting  DISCIPLINEd trader get result in json format
+-create a POLL '.$NUMBER_QUESTIONS.'. QUESTIONS ABOUT getting  DISCIPLINEd trader get result in json format
 "question": "",
   "answers": {
 	list with zero index,could be 2 to 5 options to answer , always first answer is correct
