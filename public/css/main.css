@@ -76,3 +76,6 @@ time {
      color: var(--bs-dropdown-link-hover-color);
      background-color: #fff7ae;
  }
+#poll-question{
+    color: #ffe700;
+}
