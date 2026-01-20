@@ -1,0 +1,6 @@
+vborisov433
+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
+
+
+git remote set-url origin https://<TOKEN>@github.com/<USERNAME>/<REPO>.git
+git remote set-url origin https://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@github.com/vborisov433/bor_terminal.git
